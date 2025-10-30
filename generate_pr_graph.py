@@ -81,7 +81,7 @@ def print_pr_summary(prs):
     for pr in prs:
         source = pr['head']['ref']
         target = pr['base']['ref']
-        title = pr['title'][:60]
+        title = pr['title'][:MAX_TITLE_LENGTH]
         print(f"#{pr['number']:4d}: {source:30s} -> {target:30s}")
         print(f"       {title}")
         print()
