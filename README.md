@@ -85,7 +85,7 @@ export GITHUB_TOKEN=ghp_your_token_here
 
 If you work with the same repository frequently, set a default:
 ```bash
-export GITHUB_REPO=mycompany/api
+export GITHUB_REPO=mycompany/private-repo
 ./generate_pr_graph.py
 ```
 
