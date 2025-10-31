@@ -117,9 +117,16 @@ def build_dot_content(branches, target_branches, edges):
     ]
 
     # Style primary branches
+
+    # Find primary branches that are at the end of the chain
+    # (they are targets but not sources, and contain primary branch names)
+    source_branches = {source for source, _, _, _ in edges}
     primary_branches = [
         b for b in target_branches
-        if any(name in b.lower() for name in PRIMARY_BRANCH_NAMES)
+        if b not in source_branches and any(
+            name in [part.lower() for part in b.split('/')]
+            for name in PRIMARY_BRANCH_NAMES
+        )
     ]
     for branch in primary_branches:
         lines.append(f'  "{branch}" [style="rounded,filled", fillcolor=lightblue, fontweight=bold];')
