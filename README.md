@@ -3,6 +3,26 @@
 A simple Python script to visualize the branch relationships between
 open pull requests in a GitHub repository.
 
+## Example Insight
+
+Before we go any further, let's look at some example output of this
+script to see what kind of insights it provides.
+
+![Example PR Graph](docs/example.png)
+
+This example demonstrates a fairly complex PR dependency graph with:
+
+- **Multiple primary branches** (`main`, `client-1/main`,
+  `client-2/main`) highlighted in blue
+- **Stacked feature branches** where PRs build on top of each other
+- **Release branches** that aggregate multiple features
+- **Long dependency chains** (like the data migration work flowing
+  through `project/data-migration`)
+- **Parallel work streams** merging into different targets
+
+The visualization makes it easy to understand which PRs are blocking
+others and plan merge strategies accordingly.
+
 ## Installation
 
 ### Prerequisites
