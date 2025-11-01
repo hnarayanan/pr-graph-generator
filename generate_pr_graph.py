@@ -96,6 +96,12 @@ def collect_branches_and_edges(prs):
     for pr in prs:
         source = pr['head']['ref']
         target = pr['base']['ref']
+
+        # Sometimes, weird edge cases result in PRs that have branches
+        # pointing to themselves. We skip these.
+        if source == target:
+            continue
+
         pr_title = pr['title'].replace('"', '\\"')
         pr_number = pr['number']
 
