@@ -33,6 +33,11 @@ def parse_args():
         action="store_true",
         help="Include branches without PRs (work not yet planned for release)"
     )
+    parser.add_argument(
+        "--find-stale",
+        action="store_true",
+        help="Find branches with no commits ahead of their primary branch"
+    )
     args = parser.parse_args()
 
     if not args.repo:
@@ -42,7 +47,7 @@ def parse_args():
         parser.error("Repository must be in 'owner/name' format (e.g., 'mycompany/private-repo')")
 
     owner, name = args.repo.split("/", 1)
-    return owner, name, args.show_all_branches
+    return owner, name, args.show_all_branches, args.find_stale
 
 
 def get_github_headers(token):
@@ -113,6 +118,50 @@ def fetch_all_branches(owner, repo, token):
         page += 1
 
     return all_branches
+
+
+def find_stale_branches(owner, repo, token, all_branches):
+    """Find branches that are not ahead of their primary branch."""
+    headers = get_github_headers(token)
+    stale_branches = []
+
+    print("\nChecking for stale branches (not ahead of primary)...")
+
+    for branch in all_branches:
+        # Skip primary branches themselves
+        if is_primary_branch(branch):
+            continue
+
+        # Determine which primary branch to compare against
+        # If branch has a prefix like "client-1/", use "client-1/main", else use "main"
+        parts = branch.split('/')
+        if len(parts) > 1 and any(name in parts[-1].lower() for name in PRIMARY_BRANCH_NAMES):
+            continue  # Skip if it looks like a primary branch variant
+
+        # Try to find the right base branch
+        base_branch = "main"
+        if '/' in branch:
+            potential_base = f"{parts[0]}/main"
+            if potential_base in all_branches:
+                base_branch = potential_base
+
+        # Compare branches
+        response = requests.get(
+            f"https://api.github.com/repos/{owner}/{repo}/compare/{base_branch}...{branch}",
+            headers=headers
+        )
+
+        if response.status_code == 200:
+            comparison = response.json()
+            if comparison['ahead_by'] == 0:
+                stale_branches.append({
+                    'name': branch,
+                    'base': base_branch,
+                    'status': comparison['status']
+                })
+                print(f"  {branch} (compared to {base_branch}): {comparison['status']}")
+
+    return stale_branches
 
 
 def print_pr_summary(prs):
@@ -245,7 +294,7 @@ def print_visualization_instructions(dot_file, num_prs, num_branches):
 
 def main():
     # Parse arguments
-    repo_owner, repo_name, show_all = parse_args()
+    repo_owner, repo_name, show_all, find_stale = parse_args()
 
     # Fetch data
     print(f"Fetching open PRs from {repo_owner}/{repo_name}...")
@@ -264,6 +313,17 @@ def main():
             pr_branches.add(pr['base']['ref'])
         orphan_branches = set(all_branches) - pr_branches
         print(f"Found {len(orphan_branches)} branches without PRs")
+
+    # Find stale branches
+    if find_stale:
+        all_branches = fetch_all_branches(repo_owner, repo_name, GITHUB_TOKEN)
+        stale = find_stale_branches(repo_owner, repo_name, GITHUB_TOKEN, all_branches)
+        print(f"\nFound {len(stale)} stale branches (can potentially be deleted)")
+        if stale:
+            print("\nBranches to consider deleting:")
+            for branch_info in stale:
+                print(f"  git branch -D {branch_info['name']}")
+                print(f"  git push origin --delete {branch_info['name']}")
 
     # Display summary
     print_pr_summary(prs)
