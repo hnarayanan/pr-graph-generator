@@ -83,6 +83,7 @@ def fetch_open_prs(owner, repo, token):
 
     return all_prs
 
+
 def fetch_all_branches(owner, repo, token):
     """Fetch all branches from GitHub."""
     headers = get_github_headers(token)
@@ -179,7 +180,15 @@ def build_dot_content(branches, target_branches, edges, orphan_branches=None):
     # Add orphan branches (branches without PRs)
     if orphan_branches:
         for branch in sorted(orphan_branches):
-            lines.append(f'  "{branch}" [style="rounded,filled", fillcolor=lightyellow, fontweight=italic];')
+            # Check if this orphan branch is a primary branch
+            is_primary = any(
+                name in [part.lower() for part in branch.split('/')]
+                for name in PRIMARY_BRANCH_NAMES
+            )
+            if is_primary:
+                lines.append(f'  "{branch}" [style="rounded,filled", fillcolor=lightblue, fontweight=bold];')
+            else:
+                lines.append(f'  "{branch}" [style="rounded,filled", fillcolor=lightyellow, fontweight=italic];')
         lines.append('')
 
 
