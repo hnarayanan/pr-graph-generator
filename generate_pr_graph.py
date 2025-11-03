@@ -12,6 +12,9 @@ import requests
 MAX_TITLE_LENGTH = 50
 PRIMARY_BRANCH_NAMES = ["main", "master", "develop"]
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+PRIMARY_BRANCH_COLOR = "lavender"
+PR_BRANCH_COLOR = "aliceblue"
+ORPHAN_BRANCH_COLOR = "white"
 
 
 def parse_args():
@@ -179,7 +182,7 @@ def build_dot_content(branches, target_branches, edges, orphan_branches=None):
         if b not in source_branches and is_primary_branch(b)
     ]
     for branch in primary_branches:
-        lines.append(f'  "{branch}" [style="rounded,filled", fillcolor=lightblue, fontweight=bold];')
+        lines.append(f'  "{branch}" [style="rounded,filled", fillcolor={PRIMARY_BRANCH_COLOR}, fontweight=bold];')
     lines.append('')
 
     # Add orphan branches (branches without PRs)
@@ -187,11 +190,16 @@ def build_dot_content(branches, target_branches, edges, orphan_branches=None):
         for branch in sorted(orphan_branches):
             # Check if this orphan branch is a primary branch
             if is_primary_branch(branch):
-                lines.append(f'  "{branch}" [style="rounded,filled", fillcolor=lightblue, fontweight=bold];')
+                lines.append(f'  "{branch}" [style="rounded,filled", fillcolor={PRIMARY_BRANCH_COLOR}, fontweight=bold];')
             else:
-                lines.append(f'  "{branch}" [style="rounded,filled", fillcolor=lightyellow, fontweight=italic];')
+                lines.append(f'  "{branch}" [style="rounded,filled", fillcolor={ORPHAN_BRANCH_COLOR}, fontweight=italic];')
         lines.append('')
 
+    # Style regular PR branches
+    pr_branches = branches - set(primary_branches) - (orphan_branches or set())
+    for branch in pr_branches:
+        lines.append(f'  "{branch}" [style="rounded,filled", fillcolor={PR_BRANCH_COLOR}];')
+    lines.append('')
 
     # Add edges with PR labels
     for source, target, pr_num, pr_title in edges:
