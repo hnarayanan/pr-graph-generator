@@ -152,6 +152,14 @@ def collect_branches_and_edges(prs):
     return branches, target_branches, edges
 
 
+def is_primary_branch(branch_name):
+    """Check if a branch name matches primary branch naming patterns."""
+    return any(
+        name in [part.lower() for part in branch_name.split('/')]
+        for name in PRIMARY_BRANCH_NAMES
+    )
+
+
 def build_dot_content(branches, target_branches, edges, orphan_branches=None):
     """Build Graphviz DOT file content."""
     lines = [
@@ -168,10 +176,7 @@ def build_dot_content(branches, target_branches, edges, orphan_branches=None):
     source_branches = {source for source, _, _, _ in edges}
     primary_branches = [
         b for b in target_branches
-        if b not in source_branches and any(
-            name in [part.lower() for part in b.split('/')]
-            for name in PRIMARY_BRANCH_NAMES
-        )
+        if b not in source_branches and is_primary_branch(b)
     ]
     for branch in primary_branches:
         lines.append(f'  "{branch}" [style="rounded,filled", fillcolor=lightblue, fontweight=bold];')
@@ -181,11 +186,7 @@ def build_dot_content(branches, target_branches, edges, orphan_branches=None):
     if orphan_branches:
         for branch in sorted(orphan_branches):
             # Check if this orphan branch is a primary branch
-            is_primary = any(
-                name in [part.lower() for part in branch.split('/')]
-                for name in PRIMARY_BRANCH_NAMES
-            )
-            if is_primary:
+            if is_primary_branch(branch):
                 lines.append(f'  "{branch}" [style="rounded,filled", fillcolor=lightblue, fontweight=bold];')
             else:
                 lines.append(f'  "{branch}" [style="rounded,filled", fillcolor=lightyellow, fontweight=italic];')
