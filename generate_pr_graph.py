@@ -42,14 +42,20 @@ def parse_args():
     return owner, name, args.show_all_branches
 
 
-def fetch_open_prs(owner, repo, token):
-    """Fetch all open pull requests from GitHub."""
+def get_github_headers(token):
+    """Generate GitHub API request headers."""
     headers = {
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28"
     }
     if token:
         headers["Authorization"] = f"Bearer {token}"
+    return headers
+
+
+def fetch_open_prs(owner, repo, token):
+    """Fetch all open pull requests from GitHub."""
+    headers = get_github_headers(token)
 
     all_prs = []
     page = 1
@@ -79,12 +85,7 @@ def fetch_open_prs(owner, repo, token):
 
 def fetch_all_branches(owner, repo, token):
     """Fetch all branches from GitHub."""
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28"
-    }
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
+    headers = get_github_headers(token)
 
     all_branches = []
     page = 1
