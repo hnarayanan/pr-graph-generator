@@ -34,7 +34,7 @@ def parse_args():
         help="Include branches without PRs (work not yet planned for release)"
     )
     parser.add_argument(
-        "--find-stale",
+        "--find-stale-branches",
         action="store_true",
         help="Find branches with no commits ahead of their primary branch"
     )
@@ -159,7 +159,6 @@ def find_stale_branches(owner, repo, token, all_branches):
                     'base': base_branch,
                     'status': comparison['status']
                 })
-                print(f"  {branch} (compared to {base_branch}): {comparison['status']}")
 
     return stale_branches
 
