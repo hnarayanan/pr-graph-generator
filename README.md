@@ -109,6 +109,42 @@ export GITHUB_REPO=mycompany/private-repo
 ./generate_pr_graph.py
 ```
 
+### Advanced Options
+
+#### Show all branches (including orphans)
+
+By default, the visualization only shows branches involved in open
+PRs. To include branches without PRs (useful for seeing work that
+hasn't been proposed for release yet):
+```bash
+./generate_pr_graph.py owner/repo --show-all-branches
+```
+
+By default, orphan branches appear in white with italic text, while
+branches with PRs appear in light blue. Primary branches (like `main`)
+are highlighted in lavender. (But these colours can be customized if
+you prefer others.)
+
+#### Find stale branches
+
+Sometimes, you have branches that linger even though they don't have
+any commits ahead of their primary branch. These branches are
+typically already merged or abandoned.
+
+Either way, these are candidates for deletion.
+
+```bash
+./generate_pr_graph.py owner/repo --find-stale-branches
+```
+
+The script will list potentially stale branches along with git
+commands to delete them locally and remotely.
+
+**Tip:** You can combine both flags:
+```bash
+./generate_pr_graph.py owner/repo --show-all-branches --find-stale-branches
+```
+
 ### Output
 
 The script generates date-stamped files in organized folders:
@@ -127,12 +163,18 @@ The script will print these commands for you after generating the `.dot` file.
 
 ## Configuration
 
-You can customize the script by editing these constants at the top of `generate_pr_graph.py`:
+You can customize the script by editing these constants at the top of
+`generate_pr_graph.py`:
 
 - `MAX_TITLE_LENGTH`: Maximum length for PR titles in graph labels
   (default: 50)
 - `PRIMARY_BRANCH_NAMES`: Branch names to highlight in the graph
   (default: `["main", "master", "develop"]`)
+- `PRIMARY_BRANCH_COLOR`, `PR_BRANCH_COLOR`, `ORPHAN_BRANCH_COLOR`:
+   Colors for different branch types (default: `"lavender"`,
+   `"aliceblue"`, `"white"`). See [Graphviz color
+   names](https://graphviz.org/doc/info/colors.html) for available
+   colors.
 
 ## Contributing
 
