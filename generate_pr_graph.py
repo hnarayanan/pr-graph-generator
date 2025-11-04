@@ -131,8 +131,6 @@ def find_stale_branches(owner, repo, token, all_branches):
     headers = get_github_headers(token)
     stale_branches = []
 
-    print("\nChecking for stale branches (not ahead of primary)...")
-
     for branch in all_branches:
         # Skip primary branches themselves
         if is_primary_branch(branch):
@@ -323,6 +321,7 @@ def main():
 
     # Find stale branches and educate users on their deletion
     if find_stale:
+        print("Checking for stale branches (not ahead of primary)...")
         stale = find_stale_branches(repo_owner, repo_name, GITHUB_TOKEN, all_branches)
         print(f"Found {len(stale)} stale branches (can potentially be deleted)")
         if stale:
