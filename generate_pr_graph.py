@@ -11,10 +11,10 @@ import requests
 # Configuration
 MAX_TITLE_LENGTH = 50
 PRIMARY_BRANCH_NAMES = ["main", "master", "develop"]
-GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 PRIMARY_BRANCH_COLOR = "lavender"
 PR_BRANCH_COLOR = "aliceblue"
 ORPHAN_BRANCH_COLOR = "white"
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 
 
 def parse_args():
