@@ -50,6 +50,12 @@ def parse_args():
     return owner, name, args.show_all_branches, args.find_stale_branches
 
 
+def print_section_header(title):
+    """Print a consistent section header."""
+    print(f"\n{title}")
+    print("=" * len(title))
+
+
 def get_github_headers(token):
     """Generate GitHub API request headers."""
     headers = {
@@ -165,8 +171,7 @@ def find_stale_branches(owner, repo, token, all_branches):
 
 def print_pr_summary(prs):
     """Print a summary of pull requests."""
-    print("\nPR Summary:")
-    print("-" * 80)
+    print_section_header("PR Summary")
 
     for pr in prs:
         source = pr['head']['ref']
@@ -319,11 +324,11 @@ def main():
     # Find stale branches and educate users on their deletion
     if find_stale:
         stale = find_stale_branches(repo_owner, repo_name, GITHUB_TOKEN, all_branches)
-        print(f"\nFound {len(stale)} stale branches (can potentially be deleted)")
+        print(f"Found {len(stale)} stale branches (can potentially be deleted)")
         if stale:
-            print("\nBranches to consider deleting:")
+            print_section_header("Branches to consider deleting")
             for branch_info in stale:
-                print(f"  git branch -D {branch_info['name']}")
+                print(f"  git branch -d {branch_info['name']}")
                 print(f"  git push origin --delete {branch_info['name']}")
 
     # Display summary
