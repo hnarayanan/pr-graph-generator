@@ -109,9 +109,7 @@ export GITHUB_REPO=mycompany/private-repo
 ./generate_pr_graph.py
 ```
 
-### Advanced Options
-
-#### Show all branches (including orphans)
+### Show all branches (including orphans)
 
 By default, the visualization only shows branches involved in open
 PRs. To include branches without PRs (useful for seeing work that
@@ -122,10 +120,9 @@ hasn't been proposed for release yet):
 
 By default, orphan branches appear in white with italic text, while
 branches with PRs appear in light blue. Primary branches (like `main`)
-are highlighted in lavender. (But these colours can be customized if
-you prefer others.)
+are highlighted in lavender.
 
-#### Find stale branches
+### Find stale branches
 
 Sometimes, you have branches that linger even though they don't have
 any commits ahead of their primary branch. These branches are
