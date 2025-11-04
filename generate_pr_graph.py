@@ -47,7 +47,7 @@ def parse_args():
         parser.error("Repository must be in 'owner/name' format (e.g., 'mycompany/private-repo')")
 
     owner, name = args.repo.split("/", 1)
-    return owner, name, args.show_all_branches, args.find_stale
+    return owner, name, args.show_all_branches, args.find_stale_branches
 
 
 def get_github_headers(token):
@@ -295,17 +295,20 @@ def main():
     # Parse arguments
     repo_owner, repo_name, show_all, find_stale = parse_args()
 
-    # Fetch data
+    # Fetch PR data
     print(f"Fetching open PRs from {repo_owner}/{repo_name}...")
     prs = fetch_open_prs(repo_owner, repo_name, GITHUB_TOKEN)
     print(f"Found {len(prs)} open PRs")
 
-    # Optionally fetch all branches
-    orphan_branches = None
-    if show_all:
+    # Fetch all branches if needed
+    all_branches = None
+    if show_all or find_stale:
         print("Fetching all branches...")
         all_branches = fetch_all_branches(repo_owner, repo_name, GITHUB_TOKEN)
-        # Find branches that aren't in any PR
+
+    # Process orphan branches for visualization
+    orphan_branches = None
+    if show_all:
         pr_branches = set()
         for pr in prs:
             pr_branches.add(pr['head']['ref'])
@@ -313,9 +316,8 @@ def main():
         orphan_branches = set(all_branches) - pr_branches
         print(f"Found {len(orphan_branches)} branches without PRs")
 
-    # Find stale branches
+    # Find stale branches and educate users on their deletion
     if find_stale:
-        all_branches = fetch_all_branches(repo_owner, repo_name, GITHUB_TOKEN)
         stale = find_stale_branches(repo_owner, repo_name, GITHUB_TOKEN, all_branches)
         print(f"\nFound {len(stale)} stale branches (can potentially be deleted)")
         if stale:
